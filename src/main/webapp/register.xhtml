@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="shortcut icon" href="images/iconold.webp"/>
+    <title>Register</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/styles.css"/>
+</h:head>
+<h:body>
+    <h1>Register</h1>
+    <h:form id="registerForm" prependId="false">
+        <p:inputText id="username" value="#{userController.username}" required="true" placeholder="Username"/>
+        <p:inputText id="email" value="#{userController.email}" required="true" placeholder="Email"/>
+        <h:inputSecret id="password" value="#{userController.password}" required="true" placeholder="Password"/>
+
+
+        <p:outputLabel id="agbs" rows="10">Die folgenden Allgemeinen Geschäftsbedingungen (AGB) regeln das Verhältnis zwischen dem Nutzer und dem Betreiber dieser Webseite. Mit der Registrierung auf der Webseite und der Nutzung der angebotenen Dienste erklärt sich der Nutzer mit diesen AGB einverstanden.
+            Der Nutzer verpflichtet sich, die Webseite ausschließlich für rechtmäßige Zwecke zu verwenden. Jede Form von Missbrauch, wie etwa das Manipulieren der Webseite oder der Versuch eines unbefugten Zugriffs auf unsere Systeme, ist strikt untersagt. Der Betreiber übernimmt keine Haftung für Schäden, die aus der Nutzung der Webseite entstehen, es sei denn, diese sind auf vorsätzliches oder grob fahrlässiges Verhalten des Betreibers zurückzuführen. Für mittelbare Schäden oder entgangene Gewinne wird keine Haftung übernommen.
+            Der Schutz der persönlichen Daten der Nutzer ist uns ein wichtiges Anliegen. Details zur Verarbeitung personenbezogener Daten finden sich in unserer Datenschutzerklärung, die Teil dieser AGB ist.
+            Der Betreiber behält sich das Recht vor, die AGB jederzeit zu ändern. Änderungen werden dem Nutzer rechtzeitig bekannt gegeben. Der Nutzer hat das Recht, den Nutzungsvertrag zu kündigen, falls er mit den Änderungen nicht einverstanden ist.
+            Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen davon unberührt.
+        </p:outputLabel>
+
+        <p>Bitte lesen Sie die AGBs sorgfältig und tippen Sie sie exakt ab, um fortzufahren.</p>
+        <br/>
+        <p:inputText id="userInput" placeholder="Tippen Sie den Text hier ab..." />
+        <p:outputLabel id="errorMessage" />
+        <br/>
+        <br/>
+        <p:selectBooleanCheckbox id="agreeCheckbox" required="true" label="AGB" disabled="true">
+            <f:ajax event="click" execute="@this" />
+        </p:selectBooleanCheckbox>
+        <p:outputLabel for="agreeCheckbox" value="Ich akzeptiere die AGBs" />
+        <br/>
+        <br/>
+        <p:commandButton id="weiterButton" value="Register" action="#{userController.register}" disabled="true"/>
+        <br/>
+    </h:form>
+
+    <script>
+        const agbsText = document.getElementById("agbs").textContent;
+        const userInput = document.getElementById("userInput");
+        const weiterButton = document.getElementById("weiterButton");
+        const errorMessage = document.getElementById("errorMessage");
+        const agreeCheckbox = document.getElementById("agreeCheckbox");
+
+        let currentIndex = 1;
+
+        userInput.addEventListener("input", function(e) {
+            const typedText = userInput.value;
+            const expectedText = agbsText.substring(0, typedText.length)
+
+            console.log("Typed Text: ", typedText);
+            console.log("Expected Text: ", expectedText);
+
+            if (typedText === expectedText) {
+                errorMessage.textContent = '';
+                errorMessage.classList.remove("ui-message-error");
+                currentIndex = typedText.length;
+                userInput.maxLength = expectedText.length + 1;
+            } else {
+                errorMessage.textContent = 'Falscher Buchstabe, bitte korrigieren!';
+                errorMessage.classList.add("ui-message-error");
+            }
+
+            if (typedText === agbsText &amp;&amp; agreeCheckbox.checked) {
+                weiterButton.disabled = false;
+                errorMessage.textContent = 'Sie haben die AGBs korrekt abgetippt.';
+                agreeCheckbox.disabled = false;
+            } else {
+                weiterButton.disabled = true;
+                agreeCheckbox.disabled = true;
+            }
+        });
+
+        agreeCheckbox.addEventListener("change", function() {
+            weiterButton.disabled = !(currentIndex === agbsText.length &amp;&amp; agreeCheckbox.checked);
+        });
+    </script>
+</h:body>
+</html>

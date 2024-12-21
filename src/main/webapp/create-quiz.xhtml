@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="shortcut icon" href="images/iconold.webp"/>
+    <title>Create Quiz</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/styles.css"/>
+</h:head>
+<h:body>
+    <header> <!-- TODO navbar professionell gestalten und wahrscheinlich schwarz -->
+        <h1>Create Quiz</h1>
+        <nav>
+            <a href="register.xhtml">Register</a>
+            <a href="login.xhtml">Login</a>
+            <a href="quiz.xhtml">Start a Game</a>
+            <a href="create-quiz.xhtml">Create a Quiz</a>
+        </nav>
+    </header>
+    <h:form id="quizForm" prependId="false">
+
+        <p:panel header="Quizauswahl"> <!-- TODO Anpassung damit Quiz ausgewählt werden kann oder neues Quiz-->
+            <p:selectOneMenu value="#{quizController.quiz.id}" required="true" style="width: 100%">
+                <f:selectItem itemLabel="Wähle ein Quiz aus" itemValue="" noSelectionOption="true"/>
+                <f:selectItems value="#{quizController.quiz}" var="quiz" itemLabel="#{quiz.title}" itemValue="#{quiz.id}"/>
+                <f:selectItem itemLabel="Neues Quiz erstellen" itemValue="100"/>
+                <p:ajax update="quizButton"/>
+            </p:selectOneMenu>
+
+            <p:commandButton id="quizButton" value="Erstellen" action="#{quizController.createNewQuiz}" rendered="#{quizController.quiz.id  == '100'}" />
+
+            <p:inputText value="#{quizController.quiz.title}" required="true" placeholder="Wähle dein Quiz aus oder erstelle ein neues Quiz" style="margin: 0px 0px"/>
+        </p:panel>
+
+        <p:panel header="Frage hinzufügen">
+            <p:inputText value="#{quizController.question.text}" required="true" placeholder="Frage" />
+
+            <p:repeat value="#{quizController.question.options}" var="option" varStatus="loop">
+                <p:inputText styleClass="optionen" value="#{quizController.question.options[loop.index]}" required="true" placeholder="Option #{loop.index + 1}">
+                        <p:ajax event="change" update=":quizForm:correctAnswer" oncomplete="checkOptionsFilled()" />
+                </p:inputText>
+            </p:repeat>
+
+            <p:selectOneMenu id="correctAnswer" value="#{quizController.question.correctAnswer}" required="true" placeholder="Richtige Antwort"
+                             style="width: 100%">
+                <f:selectItem itemLabel="-- Wähle die korrekte Antwort aus --" itemValue=""/>
+                <f:selectItems value="#{quizController.question.options}" var="option" itemLabel="#{option}" itemValue="#{option}"/>
+            </p:selectOneMenu>
+
+            <p:divider />
+
+            <p:commandButton type="submit" styleClass="panelButton" value="Speichern" action="#{quizController.saveQuestion}" />
+            <p:messages>
+                <p:autoUpdate/>
+            </p:messages>
+        </p:panel>
+    </h:form>
+
+    <script>
+        function checkOptionsFilled() {
+            const optionen = document.querySelectorAll(".optionen");
+            const correctAnswer = document.getElementById("correctAnswer");
+
+            let allFilled = true;
+
+            optionen.forEach(option => {
+                if (!option.value.trim()) {
+                    allFilled = false;
+                }
+            });
+
+            if (allFilled) {
+                correctAnswer.style.display = 'block';
+            } else {
+                correctAnswer.style.display = 'none';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            checkOptionsFilled();
+        });
+    </script>
+</h:body>
+</html>
